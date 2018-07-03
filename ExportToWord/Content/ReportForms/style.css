@@ -1,0 +1,55 @@
+.header div p input{
+	margin-left:5px;
+}
+
+.main {
+   border:1px solid #000000;
+   width:50%;
+   height:100%;
+   text-align:center;
+   overflow-y:auto;
+   margin-left:22%;
+}
+/*多行文本框样式*/
+.mainContent {
+    width:95%;
+    height:400px;
+}
+/*表格标题*/
+.table_title {
+    margin:50px auto 30px auto;
+}
+/*表格样式*/
+.tab-content{
+	height: 48px;
+	line-height: 48px;
+	border: 1px solid #33CCCC;
+	font-size: 14px;
+    border-collapse: collapse;
+    width:95%;
+    margin-left:2%;
+}
+/*tr  th  td都加上边框*/
+.tab-content tr{
+    border:1px solid #33CCCC;
+    height:63px;
+}
+.tab-content tr th{
+    border:1px solid #33CCCC;
+}
+table tr td{
+    border:1px solid #33CCCC;
+}
+
+/*按钮*/
+.btn{
+	text-align: center;
+	background-color: #33CCCC;
+	width: 120px;
+	height: 40px;
+	color: white;
+}
+.footer {
+     margin: 1% 0 1% 44%;
+}
+

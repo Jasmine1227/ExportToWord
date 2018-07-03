@@ -1,0 +1,282 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<link href="~/Content/ReportForms/style.css" rel="stylesheet" />
+<script src="~/Scripts/ReportForms/echarts.js"></script>
+<script src="~/Scripts/ReportForms/jquery-1.10.2.min.js"></script>
+<script src="~/Scripts/ReportForms/FileSaver.js"></script>
+<script src="~/Scripts/ReportForms/jquery.wordexport.js"></script>
+<script type="text/javascript">
+    var myChart;
+    jQuery(document).ready(function($){
+        //初始化ECharts
+        //基于准备好的dom,初始化echarts实例
+        myChart = echarts.init(document.getElementById('charts'));
+        //指定图表的配置项和数据
+        option = {
+            title: {
+                text: '某地区蒸发量和降水量',
+                subtext: '纯属虚构'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            legend: {
+                data: ['蒸发量', '降水量']
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    dataView: { show: true, readOnly: false },
+                    magicType: { show: true, type: ['line', 'bar'] },
+                    restore: { show: true },
+                    saveAsImage: { show: true }
+                }
+            },
+            calculable: true,
+            xAxis: [
+                {
+                    type: 'category',
+                    data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
+                }
+            ],
+            yAxis: [
+                {
+                    type: 'value'
+                }
+            ],
+            series: [
+                {
+                    name: '蒸发量',
+                    type: 'bar',
+                    data: [2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3],
+                    markPoint: {
+                        data: [
+                            { type: 'max', name: '最大值' },
+                            { type: 'min', name: '最小值' }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                },
+                {
+                    name: '降水量',
+                    type: 'bar',
+                    data: [2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3],
+                    markPoint: {
+                        data: [
+                            { name: '年最高', value: 182.2, xAxis: 7, yAxis: 183 },
+                            { name: '年最低', value: 2.3, xAxis: 11, yAxis: 3 }
+                        ]
+                    },
+                    markLine: {
+                        data: [
+                            { type: 'average', name: '平均值' }
+                        ]
+                    }
+                }
+            ]
+        };
+
+
+        //使用刚指定的配置项和数据显示图表
+        myChart.setOption(option);
+
+        //绑定导出word事件
+        $('#export_word').click(function () {
+            //由于input控件导出word样式不好看，全部替换为label
+            setValue();
+            //ECharts保存为图片
+            //var html = "<img src='' id='img_Charts'>";
+            //$("#imgDiv").append(html);
+            SaveChartsPic();
+            //命名规则 年月日时分秒报表
+            var date = new Date();
+            var year = date.getFullYear();
+            var month = date.getMonth() + 1;
+            var day = date.getDate();
+            var hour = date.getHours();
+            var minute = date.getMinutes();
+            var second = date.getSeconds();
+            var fileName = (year + '年' + month + '月' + day + '日 ' + hour + ':' + minute + ':' + second + "报表");
+            //导出
+            $("#ReportToWord").wordExport(fileName);
+        })
+    });
+
+    //将charts保存为图片
+    function SaveChartsPic() {
+        //var chartExportUrl = '/lang/EchartTest/Export';
+        var picBase64Info = myChart.getDataURL();//获取echarts图的base64编码，为png格式。
+        $.ajax({
+            url: "/ReportForms/Export",
+            data: { base64Info: picBase64Info, fileType: 'png' },
+            type: "Post",
+            async: false,
+            dataType: "json",
+            success: function (data) {
+                //如果成功，记录图片的地址
+                if (data.code == 1) {
+                    $('#img_Charts').attr('src', data.imgUrl);
+                }
+                    //如果失败，弹出提示
+                else {
+                    alert(data.Message);
+                }
+            },
+        })
+    }
+
+    //导出word赋值
+    function setValue() {
+        //院系
+        $("#lbl_college").html($("#college").val());
+        //$("#reportName").attr("value", $("#reportName").val());
+
+        //专业
+        $("#lbl_major").html($("#major").val());
+        //年级班级
+        $("#lbl_class").html($("#class").val());
+        //学生姓名
+        $("#lbl_studentName").html($("#studentName").val());
+        //指导教师姓名
+        $("#lbl_teacherName").html($("#teacherName").val());
+        //主要内容
+        $("#lbl_mainContent").html($("#mainContent").val());
+    }
+</script>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Index</title>
+</head>
+<body>
+    <div id="main" class="main">
+        <div id="header" class="header">
+            <h2>毕业论文设计</h2>
+            <div>
+                <p>
+                    <span>院系:</span>
+                    <input id="college">
+                </p>
+                <p>
+                    专业名称:
+                    <input id="major" />
+                </p>
+                <p>
+                    年级班级:
+                    <input id="class">
+                </p>
+                <p>
+                    学生姓名:
+                    <input id="studentName">
+                </p>
+                <p>
+                    指导教师姓名:
+                    <input id="teacherName">
+                </p>
+            </div>
+        </div>
+        <div>
+            <div>
+                <textarea id="mainContent" class="mainContent"></textarea>
+            </div>
+            <div>
+                <div class="table_title">蒸发量/降水量统计表</div>
+                <table id="tab" class="tab-content">
+                    <tr>
+                        <th>月份</th>
+                        <th>蒸发量</th>
+                        <th>降水量</th>
+                    </tr>
+                    <tr>
+                        <td>1月</td>
+                        <td>2</td>
+                        <td>2.6</td>
+                    </tr>
+                    <tr>
+                        <td>2月</td>
+                        <td>4.9</td>
+                        <td>5.9</td>
+                    </tr>
+                    <tr>
+                        <td>3月</td>
+                        <td>7</td>
+                        <td>9</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="charts" class="mainContent"></div>
+        </div>
+        <div id="footer" class="footer">
+            <div id="export_word" class="btn">导出word</div>
+        </div>
+    </div>
+    <div id="ReportToWord" class="main" align="center" style="display:none;">
+        <div id="header" class="header">
+            <h2>毕业论文设计</h2>
+            <div>
+                <p>
+                    院系:
+                    <label id="lbl_college"></label>
+                </p>
+                <p>
+                    专业名称:
+                    <label id="lbl_major"></label>
+                </p>
+                <p>
+                    年级班级:
+                    <label id="lbl_class"></label>
+                </p>
+                <p>
+                    学生姓名:
+                    <label id="lbl_studentName"></label>
+                </p>
+                <p>
+                    指导教师姓名:
+                    <label id="lbl_teacherName"></label>
+                </p>
+            </div>
+        </div>
+        <div id="contentToWord">
+            <div>
+                <label class="mainContent" id="lbl_mainContent"></label>
+            </div>
+            <div>
+                <div class="table_title">蒸发量/降水量统计表</div>
+                <table id="tab" class="tab-content">
+                    <tr>
+                        <th>月份</th>
+                        <th>蒸发量</th>
+                        <th>降水量</th>
+                    </tr>
+                    <tr>
+                        <td>1月</td>
+                        <td>2</td>
+                        <td>2.6</td>
+                    </tr>
+                    <tr>
+                        <td>2月</td>
+                        <td>4.9</td>
+                        <td>5.9</td>
+                    </tr>
+                    <tr>
+                        <td>3月</td>
+                        <td>7</td>
+                        <td>9</td>
+                    </tr>
+                </table>
+            </div>
+            <div id="imgDiv">
+                <img src='' id='img_Charts'>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
